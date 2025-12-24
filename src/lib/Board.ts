@@ -48,18 +48,38 @@ export class Board {
     }
 
     /** Returns the true value of the specified cell (0 = empty, 1 = filled) */
-    getTrueValue(row: number, col: number): number {
+    public getTrueValue(row: number, col: number): number {
         return (this.cells[this.index(row, col)] & 0b001) !== 0 ? 1 : 0;
     }
 
     /** Returns the marked status of the specified cell (true = marked, false = unmarked) */
-    isMarked(row: number, col: number): boolean {
+    public isMarked(row: number, col: number): boolean {
         return (this.cells[this.index(row, col)] & 0b010) !== 0;
     }
 
     /** Returns the revealed status of the specified cell (true = revealed, false = unrevealed) */
-    isRevealed(row: number, col: number): boolean {
+    public isRevealed(row: number, col: number): boolean {
         return (this.cells[this.index(row, col)] & 0b100) !== 0;
+    }
+
+    /** Returns the array of hints for the specified row */
+    public getRowHints(row: number): number[] {
+        return this.RowHints[row];
+    }
+
+    /** Returns the array of hints for the specified column */
+    public getColHints(col: number): number[] {
+        return this.ColHints[col];
+    }
+
+/** Returns the length of the longest row hint */
+    public getLongestRowHintLength(): number {
+        return this.longestRowHint;
+    }
+    
+    /** Returns the length of the longest column hint */
+    public getLongestColHintLength(): number {
+        return this.longestColHint;
     }
 
     /** Sets the true value of a cell.
@@ -67,7 +87,7 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {number} value - The true value to set (0 = empty, 1 = filled)
      */
-    setTrueValue(row: number, col: number, value: number): void {
+    public setTrueValue(row: number, col: number, value: number): void {
         this.cells[this.index(row, col)] = (this.cells[this.index(row, col)] & 0b110) | (value & 0b001);
     }
 
@@ -76,7 +96,7 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {boolean} marked - The marked status to set (true = marked, false = unmarked)
      */
-    setMarked(row: number, col: number, marked: boolean): void {
+    public setMarked(row: number, col: number, marked: boolean): void {
         this.cells[this.index(row, col)] = marked
             ? (this.cells[this.index(row, col)] | 0b010)
             : (this.cells[this.index(row, col)] & 0b101);
@@ -87,14 +107,14 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {boolean} revealed - The revealed status to set (true = revealed, false = unrevealed)
      */
-    setRevealed(row: number, col: number, revealed: boolean): void {
+    public setRevealed(row: number, col: number, revealed: boolean): void {
         this.cells[this.index(row, col)] = revealed
             ? (this.cells[this.index(row, col)] | 0b100)
             : (this.cells[this.index(row, col)] & 0b011);
     }
 
     /** Calculates the hints for each row and column based on the current true values of the cells */
-    calculateHints(): void {
+    public calculateHints(): void {
         // Reset the row and column hints to arrays (length row, column respectively) of empty arrays
         this.RowHints = Array(this.rows).fill(null).map(() => []);
         this.ColHints = Array(this.cols).fill(null).map(() => []);
