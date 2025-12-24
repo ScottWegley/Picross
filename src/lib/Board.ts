@@ -2,7 +2,7 @@
  * Class representing a grid of cells for the game Picross
  * 
  * Each cells uses three bits:
- *  - Bit 0: the true value of the cell (0 = empty, 1 = filled)
+ *  - Bit 0: the filled value of the cell (0 = empty, 1 = filled)
  *  - Bit 1: whether the cell has been marked (0 = unmarked, 1 = marked)
  *  - Bit 2: whether the cell has been revealed (0 = unrevealed, 1 = revealed)
  */
@@ -48,8 +48,8 @@ export class Board {
     }
 
     /** Returns the true value of the specified cell (0 = empty, 1 = filled) */
-    public getTrueValue(row: number, col: number): number {
-        return (this.cells[this.index(row, col)] & 0b001) !== 0 ? 1 : 0;
+    public isFilled(row: number, col: number): boolean {
+        return (this.cells[this.index(row, col)] & 0b001) !== 0;
     }
 
     /** Returns the marked status of the specified cell (true = marked, false = unmarked) */
@@ -72,11 +72,11 @@ export class Board {
         return this.ColHints[col];
     }
 
-/** Returns the length of the longest row hint */
+    /** Returns the length of the longest row hint */
     public getLongestRowHintLength(): number {
         return this.longestRowHint;
     }
-    
+
     /** Returns the length of the longest column hint */
     public getLongestColHintLength(): number {
         return this.longestColHint;
@@ -87,8 +87,8 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {number} value - The true value to set (0 = empty, 1 = filled)
      */
-    public setTrueValue(row: number, col: number, value: number): void {
-        this.cells[this.index(row, col)] = (this.cells[this.index(row, col)] & 0b110) | (value & 0b001);
+    public setFilled(row: number, col: number, filled: boolean): void {
+        this.cells[this.index(row, col)] = (this.cells[this.index(row, col)] & 0b110) | (filled ? 1 : 0);
     }
 
     /** Sets the marked status of a cell.
@@ -132,7 +132,7 @@ export class Board {
             let currentRowHint = 0;
             // Loop through every column in this row
             for (let c = 0; c < this.cols; c++) {
-                const isFilled = this.getTrueValue(r, c) === 1;
+                const isFilled = this.isFilled(r, c);
                 if (isFilled) {
                     // If the current cell is filled, increment the current hint size for this row
                     currentRowHint++;
@@ -174,8 +174,76 @@ export class Board {
             }
             // Compare the current column hint length to the longest column hint, overwriting if larger
             if (this.ColHints[c].length > this.longestColHint) {
-                this.longestColHint = this.ColHints[c].length; 
+                this.longestColHint = this.ColHints[c].length;
             }
+        }
+    }
+
+    public toString(): String {
+        // An array of strings to be combined into the final string representation
+        let lines: String[] = [];
+
+        /**
+         *       1
+         * 1     1 
+         * 2 1   3 1
+         * 3 2 1 2 1
+         */
+
+        // An empty line holder 
+        let line: String;
+
+        // Start with constructing the column hints
+        for (let i = 0; i < this.longestColHint; i++) {
+            // Before any hints, add spacing to accommodate the row hints (added later)
+            line = " ".repeat(this.longestRowHint * 2 + 1);
+            // Loop through each column to add the appropriate hint or space
+            for (let c = 0; c < this.cols; c++) {
+                const hints = this.ColHints[c];
+                // If there is a hint at this level, add it, otherwise add spaces
+                if (hints.length + i >= this.longestColHint) {
+                    line += hints[i - (this.longestColHint - hints.length)].toString() + " ";
+                } else {
+                    line += "  ";
+                }
+            }
+            lines.push(line);
+        }
+
+        // Construct each row with hints followed by cell representations
+        for (let r = 0; r < this.rows; r++) {
+            line = "";
+            // Add the row hints first
+            const hints = this.RowHints[r];
+            for (let i = 0; i < this.longestRowHint; i++) {
+                if (hints.length + i >= this.longestRowHint) {
+                    line += hints[i - (this.longestRowHint - hints.length)].toString() + " ";
+                } else {
+                    line += "  ";
+                }
+            }
+            line += "|";
+            // Now add the cell representations
+            for (let c = 0; c < this.cols; c++) {
+                line += this.getStringForCell(r, c) + "|";
+            }
+            lines.push(line);
+        }
+        return lines.join("\n");
+    }
+
+    /** Returns a string representation of the cell based on its state.
+     * A revealed cell will show as "⏹" if filled, "▢" if empty.
+     * An unrevealed cell will show as "❌" if marked, "▢" if unmarked.
+     * @param {number} row - The row number of the cell
+     * @param {number} col - The column number of the cell
+     * @returns A string representing the cell's state
+     */
+    private getStringForCell(row: number, col: number): String {
+        if(this.isRevealed(row, col)) {
+            return this.isFilled(row, col) ? "⏹" : "▢";
+        } else {
+            return this.isMarked(row, col) ? "❌" : "▢";
         }
     }
 }
