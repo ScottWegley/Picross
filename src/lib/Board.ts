@@ -82,7 +82,7 @@ export class Board {
         return this.longestColHint;
     }
 
-    /** Sets the true value of a cell.
+    /** Sets the filled value of a cell.
      * @param {number} row - The row number of the cell
      * @param {number} col - The column number of the cell
      * @param {number} value - The true value to set (0 = empty, 1 = filled)
@@ -179,7 +179,14 @@ export class Board {
         }
     }
 
-    public toString(): String {
+    /**
+     * Returns a string representation of the board, including hints.
+     * Revealed cells show as "⏹" if filled, "⊡" if empty.
+     * Unrevealed cells show as "⊠" if marked, "▢" if unmarked.
+     * @param {boolean} admin False by default. If true, reveals all cells regardless of their revealed status
+     * @returns 
+     */
+    public toString(admin:boolean = false): String {
         // An array of strings to be combined into the final string representation
         let lines: String[] = [];
 
@@ -195,7 +202,7 @@ export class Board {
                 const hints = this.ColHints[c];
                 // If there is a hint at this level, add it, otherwise add spaces
                 if (hints.length + i >= this.longestColHint) {
-                    line += hints[i - (this.longestColHint - hints.length)].toString() + " ";
+                    line += hints[i - (this.longestColHint - hints.length)].toString() + " " + (" ".repeat(c % 4 === 0 ? 0 : 1));
                 } else {
                     line += "  ";
                 }
@@ -218,7 +225,7 @@ export class Board {
             line += "|";
             // Now add the cell representations
             for (let c = 0; c < this.cols; c++) {
-                line += this.getStringForCell(r, c) + "|";
+                line += this.getStringForCell(r, c, admin) + "|";
             }
             lines.push(line);
         }
@@ -226,15 +233,16 @@ export class Board {
     }
 
     /** Returns a string representation of the cell based on its state.
-     * A revealed cell will show as "⏹" if filled, "▢" if empty.
-     * An unrevealed cell will show as "❌" if marked, "▢" if unmarked.
+     * A revealed cell will show as "⏹" if filled, "⊡" if empty.
+     * An unrevealed cell will show as "⊠" if marked, "▢" if unmarked.
      * @param {number} row - The row number of the cell
      * @param {number} col - The column number of the cell
+     * @param {boolean} admin - If true, reveals all cells regardless of their revealed status
      * @returns A string representing the cell's state
      */
-    private getStringForCell(row: number, col: number): String {
-        if(this.isRevealed(row, col)) {
-            return this.isFilled(row, col) ? "⏹" : "▢";
+    private getStringForCell(row: number, col: number, admin: boolean = false): String {
+        if(this.isRevealed(row, col) || admin) {
+            return this.isFilled(row, col) ? "⏹" : "⊡";
         } else {
             return this.isMarked(row, col) ? "⊠" : "▢";
         }
