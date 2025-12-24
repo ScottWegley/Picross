@@ -51,4 +51,35 @@ export class Board {
     isRevealed(row: number, col: number): boolean {
         return (this.cells[this.index(row, col)] & 0b100) !== 0;
     }
+
+    /** Sets the true value of a cell.
+     * @param {number} row - The row number of the cell
+     * @param {number} col - The column number of the cell
+     * @param {number} value - The true value to set (0 = empty, 1 = filled)
+     */
+    setTrueValue(row: number, col: number, value: number): void {
+        this.cells[this.index(row, col)] = (this.cells[this.index(row, col)] & 0b110) | (value & 0b001);
+    }
+
+    /** Sets the marked status of a cell.
+     * @param {number} row - The row number of the cell
+     * @param {number} col - The column number of the cell
+     * @param {boolean} marked - The marked status to set (true = marked, false = unmarked)
+     */
+    setMarked(row: number, col: number, marked: boolean): void {
+        this.cells[this.index(row, col)] = marked
+            ? (this.cells[this.index(row, col)] | 0b010)
+            : (this.cells[this.index(row, col)] & 0b101); 
+    }
+
+    /** Sets the revealed status of a cell.
+     * @param {number} row - The row number of the cell
+     * @param {number} col - The column number of the cell
+     * @param {boolean} revealed - The revealed status to set (true = revealed, false = unrevealed)
+     */
+    setRevealed(row: number, col: number, revealed: boolean): void {
+        this.cells[this.index(row, col)] = revealed
+            ? (this.cells[this.index(row, col)] | 0b100)
+            : (this.cells[this.index(row, col)] & 0b011); 
+    }
 }
