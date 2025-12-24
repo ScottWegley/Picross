@@ -87,7 +87,7 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {number} value - The true value to set (0 = empty, 1 = filled)
      */
-    public setFilled(row: number, col: number, filled: boolean): void {
+    public fillCell(row: number, col: number, filled: boolean): void {
         this.cells[this.index(row, col)] = (this.cells[this.index(row, col)] & 0b110) | (filled ? 1 : 0);
     }
 
@@ -96,7 +96,7 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {boolean} marked - The marked status to set (true = marked, false = unmarked)
      */
-    public setMarked(row: number, col: number, marked: boolean): void {
+    public markCell(row: number, col: number, marked: boolean): void {
         this.cells[this.index(row, col)] = marked
             ? (this.cells[this.index(row, col)] | 0b010)
             : (this.cells[this.index(row, col)] & 0b101);
@@ -107,7 +107,7 @@ export class Board {
      * @param {number} col - The column number of the cell
      * @param {boolean} revealed - The revealed status to set (true = revealed, false = unrevealed)
      */
-    public setRevealed(row: number, col: number, revealed: boolean): void {
+    public revealCell(row: number, col: number, revealed: boolean): void {
         this.cells[this.index(row, col)] = revealed
             ? (this.cells[this.index(row, col)] | 0b100)
             : (this.cells[this.index(row, col)] & 0b011);
@@ -183,13 +183,6 @@ export class Board {
         // An array of strings to be combined into the final string representation
         let lines: String[] = [];
 
-        /**
-         *       1
-         * 1     1 
-         * 2 1   3 1
-         * 3 2 1 2 1
-         */
-
         // An empty line holder 
         let line: String;
 
@@ -243,7 +236,7 @@ export class Board {
         if(this.isRevealed(row, col)) {
             return this.isFilled(row, col) ? "⏹" : "▢";
         } else {
-            return this.isMarked(row, col) ? "❌" : "▢";
+            return this.isMarked(row, col) ? "⊠" : "▢";
         }
     }
 }
