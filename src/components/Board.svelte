@@ -8,7 +8,6 @@
 
 <div class="p-2">
   <div class="flex items-center justify-between mb-2">
-    <div class="font-medium">Mode: {mode}</div>
     <div class="text-sm text-muted">{rows} x {cols}</div>
   </div>
 
