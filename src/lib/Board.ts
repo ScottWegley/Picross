@@ -62,6 +62,13 @@ export class Board {
         return (this.cells[this.index(row, col)] & 0b100) !== 0;
     }
 
+    /** Allows access to the underlying cells array.
+     * @returns {Readonly<Uint8Array>} The cells array (read-only).
+     */
+    public getCells(): Readonly<Uint8Array> {
+        return this.cells;
+    }
+
     /** Returns the array of hints for the specified row */
     public getRowHints(row: number): number[] {
         return this.RowHints[row];
