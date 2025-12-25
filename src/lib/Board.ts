@@ -5,6 +5,8 @@
  *  - Bit 0: the filled value of the cell (0 = empty, 1 = filled)
  *  - Bit 1: whether the cell has been marked (0 = unmarked, 1 = marked)
  *  - Bit 2: whether the cell has been revealed (0 = unrevealed, 1 = revealed)
+ *  - Bit 3: whether the cell was guessed as empty or filled (0 = empty, 1 = filled)
+ *  Bit 3 defaults to 0 (empty) and should only be considered when Bit 2 (revealed) is set to 1.
  */
 export class Board {
     /** The number of rows in the board */
@@ -60,6 +62,13 @@ export class Board {
     /** Returns the revealed status of the specified cell (true = revealed, false = unrevealed) */
     public isRevealed(row: number, col: number): boolean {
         return (this.cells[this.index(row, col)] & 0b100) !== 0;
+    }
+
+    /** Returns the guessed status of the specified cell (true = guessed filled, false = guessed empty)
+     * This value should only be considered if {@link isRevealed} returns true.
+     */
+    public isGuessedFilled(row: number, col: number): boolean {
+        return (this.cells[this.index(row, col)] & 0b1000) !== 0;
     }
 
     /** Allows access to the underlying cells array.
@@ -118,6 +127,13 @@ export class Board {
         this.cells[this.index(row, col)] = revealed
             ? (this.cells[this.index(row, col)] | 0b100)
             : (this.cells[this.index(row, col)] & 0b011);
+    }
+
+    /** Set the guessed status of a cell. */
+    public guessCell(row: number, col: number, filled: boolean): void {
+        this.cells[this.index(row, col)] = filled
+            ? (this.cells[this.index(row, col)] | 0b1000)
+            : (this.cells[this.index(row, col)] & 0b0111);
     }
 
     /** Calculates the hints for each row and column based on the current true values of the cells */
@@ -188,12 +204,12 @@ export class Board {
 
     /**
      * Returns a string representation of the board, including hints.
-     * Revealed cells show as "⏹" if filled, "⊡" if empty.
-     * Unrevealed cells show as "⊠" if marked, "▢" if unmarked.
-     * @param {boolean} admin False by default. If true, reveals all cells regardless of their revealed status
-     * @returns 
+     * A revealed cell will show as "⏹" if filled correctly, "▦" if filled incorrectly, 
+     * "⊡" if empty correctly, "⬚" if empty incorrectly.
+     * An unrevealed cell will show as "⊠" if marked, "▢" if unmarked.
+     * @returns A string representation of the Picross board.
      */
-    public toString(admin:boolean = false): String {
+    public toString(): String {
         // An array of strings to be combined into the final string representation
         let lines: String[] = [];
 
@@ -232,7 +248,7 @@ export class Board {
             line += "|";
             // Now add the cell representations
             for (let c = 0; c < this.cols; c++) {
-                line += this.getStringForCell(r, c, admin) + "|";
+                line += this.getStringForCell(r, c) + "|";
             }
             lines.push(line);
         }
@@ -240,18 +256,24 @@ export class Board {
     }
 
     /** Returns a string representation of the cell based on its state.
-     * A revealed cell will show as "⏹" if filled, "⊡" if empty.
+     * A revealed cell will show as "⏹" if filled correctly, "▦" if filled incorrectly, 
+     * "⊡" if empty correctly, "⬚" if empty incorrectly.
      * An unrevealed cell will show as "⊠" if marked, "▢" if unmarked.
      * @param {number} row - The row number of the cell
      * @param {number} col - The column number of the cell
-     * @param {boolean} admin - If true, reveals all cells regardless of their revealed status
      * @returns A string representing the cell's state
      */
-    private getStringForCell(row: number, col: number, admin: boolean = false): String {
-        if(this.isRevealed(row, col) || admin) {
-            return this.isFilled(row, col) ? "⏹" : "⊡";
+    private getStringForCell(row: number, col: number): String {
+        if(this.isRevealed(row, col)) {
+            if(this.isFilled(row, col)) {
+                return this.isGuessedFilled(row, col) ? "⏹" : "▦";
+            } else {
+                return this.isGuessedFilled(row, col) ? "⬚" : "⊡";
+            }
         } else {
             return this.isMarked(row, col) ? "⊠" : "▢";
         }
     }
 }
+
+export type CellVisual = "filled" | "empty" | "marked" | "filled-incorrect" | "empty-incorrect";

@@ -16,7 +16,7 @@ const main: (() => void) = () => {
   PicrossBoard.fillCell(1, 4, true);
   PicrossBoard.fillCell(2, 0, true);
   PicrossBoard.calculateHints();
-  console.log(PicrossBoard.toString(true));
+  console.log(PicrossBoard.toString());
 }
 
 main();
