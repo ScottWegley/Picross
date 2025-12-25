@@ -2,16 +2,21 @@
   import { Board } from "../lib/Board";
 
   export let PicrossBoard: Board;
-  export let mode: 'solve' | 'build' | 'play' = 'solve'
 
-  $: cells = Array(PicrossBoard.rows * PicrossBoard.cols).fill(0)
+  $: cells = PicrossBoard.getCells();
+  
+  // Dynamic cell size: larger cells for small boards, smaller for large boards
+  $: maxDim = Math.max(PicrossBoard.rows, PicrossBoard.cols);
+  $: cellSize = maxDim <= 10 ? 32 : 
+                maxDim <= 20 ? 24 : 
+                maxDim <= 30 ? 20 : 16; // pixels
 </script>
 
 <div class="p-2">
   <div class="bg-base-200 p-2 overflow-auto flex justify-center">
-    <div class="grid gap-0" style="grid-template-columns: repeat({PicrossBoard.cols}, 1rem);">
+    <div class="grid gap-0" style="grid-template-columns: repeat({PicrossBoard.cols}, {cellSize}px);">
       {#each cells as _, i}
-        <div class="w-4 h-4 border bg-white"></div>
+        <div class="border bg-white" style="width: {cellSize}px; height: {cellSize}px;"></div>
       {/each}
     </div>
   </div>
