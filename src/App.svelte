@@ -1,11 +1,15 @@
 <script lang="ts">
-  import Toolbar from './components/Toolbar.svelte'
-  import Board from './components/Board.svelte'
+  import Toolbar from './components/Toolbar.svelte';
+  import BoardDisplay from './components/BoardDisplay.svelte';
+  import { Board } from "./lib/Board";
 
-  type Mode = 'solve' | 'build' | 'play'
-  let mode: Mode = 'solve'
-  let rows = 10
-  let cols = 10
+  type Mode = 'solve' | 'build' | 'play';
+  let mode: Mode = 'solve';
+
+  let rows: number = 3;
+  let cols: number = 3;
+
+  let PicrossBoard: Board = new Board(rows, cols);
 
   function handleModeChange(e: CustomEvent) {
     mode = e.detail
@@ -19,7 +23,7 @@
 
   <section class="container mx-auto">
     <div class="card bg-base-100 shadow p-4">
-      <Board {rows} {cols} {mode} />
+      <BoardDisplay {PicrossBoard} {mode} />
     </div>
   </section>
 </main>
