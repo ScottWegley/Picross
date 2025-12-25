@@ -16,6 +16,9 @@
   }
 
   function handleSizeChange() {
+    if(mode !== 'build') {
+      return;
+    }
     PicrossBoard = new Board(rows, cols);
   }
 </script>
@@ -30,14 +33,14 @@
       <div class="flex gap-4 mb-4 items-center justify-center">
         <label class="flex items-center gap-2">
           <span class="text-sm font-medium">Rows:</span>
-          <input type="number" bind:value={rows} on:change={handleSizeChange} min="1" max="50" class="input input-bordered input-sm w-20" />
+          <input type="number" bind:value={rows} on:change={handleSizeChange} min="1" max="50" class="input input-bordered input-sm w-20" disabled={mode !== 'build'} />
         </label>
         <label class="flex items-center gap-2">
           <span class="text-sm font-medium">Cols:</span>
-          <input type="number" bind:value={cols} on:change={handleSizeChange} min="1" max="50" class="input input-bordered input-sm w-20" />
+          <input type="number" bind:value={cols} on:change={handleSizeChange} min="1" max="50" class="input input-bordered input-sm w-20" disabled={mode !== 'build'} />
         </label>
       </div>
-      <BoardDisplay {PicrossBoard} {mode} />
+      <BoardDisplay {PicrossBoard} />
     </div>
   </section>
 </main>
