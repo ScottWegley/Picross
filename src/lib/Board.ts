@@ -28,8 +28,7 @@ export class Board {
     /** Stores the length of the longest column hint */
     private longestColHint: number = 0;
 
-    /**
-     * Creates a new instance of {@link Board}
+    /** Creates a new instance of {@link Board}
      * @param {number} rows - The number of rows in the board
      * @param {number} cols - The number of columns in the board
      */
@@ -118,7 +117,7 @@ export class Board {
             : (this.cells[this.index(row, col)] & 0b101);
     }
 
-    /** Sets the revealed status of a cell.
+    /** Sets the revealed status of a cell.  This function should only be called independently to unreveal a cell.
      * @param {number} row - The row number of the cell
      * @param {number} col - The column number of the cell
      * @param {boolean} revealed - The revealed status to set (true = revealed, false = unrevealed)
@@ -129,11 +128,16 @@ export class Board {
             : (this.cells[this.index(row, col)] & 0b011);
     }
 
-    /** Set the guessed status of a cell. */
+    /** Set the guessed status of a cell.  Also reveals the cell using {@link revealCell}.
+     * @param {number} row - The row number of the cell
+     * @param {number} col - The column number of the cell
+     * @param {boolean} filled - The guessed status to set (true = guessed filled, false = guessed empty)
+     */
     public guessCell(row: number, col: number, filled: boolean): void {
         this.cells[this.index(row, col)] = filled
             ? (this.cells[this.index(row, col)] | 0b1000)
             : (this.cells[this.index(row, col)] & 0b0111);
+        this.revealCell(row, col, true);
     }
 
     /** Calculates the hints for each row and column based on the current true values of the cells */
@@ -264,14 +268,26 @@ export class Board {
      * @returns A string representing the cell's state
      */
     private getStringForCell(row: number, col: number): String {
-        if(this.isRevealed(row, col)) {
-            if(this.isFilled(row, col)) {
+        if (this.isRevealed(row, col)) {
+            if (this.isFilled(row, col)) {
                 return this.isGuessedFilled(row, col) ? "⏹" : "▦";
             } else {
                 return this.isGuessedFilled(row, col) ? "⬚" : "⊡";
             }
         } else {
             return this.isMarked(row, col) ? "⊠" : "▢";
+        }
+    }
+
+    private getCellVisual(row: number, col: number): CellVisual {
+        if (this.isRevealed(row, col)) {
+            if (this.isFilled(row, col)) {
+                return this.isGuessedFilled(row, col) ? "filled" : "filled-incorrect";
+            } else {
+                return this.isGuessedFilled(row, col) ? "empty-incorrect" : "empty";
+            }
+        } else {
+            return this.isMarked(row, col) ? "marked" : "empty";
         }
     }
 }
